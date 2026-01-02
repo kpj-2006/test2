@@ -1,0 +1,47 @@
+name: Onboard First-Time Contributor
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  ask-for-info:
+    if: |
+      github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, 'first-time-contributor')
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Comment asking for Discord ID and wallet
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = [
+              "🎉 **Congratulations on your first merged PR!**",
+              "",
+              "To complete onboarding and receive your Discord **Apprentice** role, please comment **exactly** in this format:",
+              "",
+              "```",
+              'discord: "YOUR_DISCORD_USER_ID"',
+              'wallet: "YOUR_WALLET_ADDRESS"',
+              "```",
+              "",
+              "**How to find your Discord ID:**",
+              "1. Enable Developer Mode in Discord (Settings → Advanced)",
+              "2. Right-click your username → Copy User ID",
+              "",
+              "**Wallet format:** Must start with `0x` (42 characters total)",
+              "",
+              "⚠️ **Only the PR author's comment will be accepted.**",
+              "⏰ **You have 7 days to respond.**"
+            ].join("\\n");
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body
+            });

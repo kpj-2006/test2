@@ -1,0 +1,14 @@
+name: Triage Removal Assignment Tracking
+
+on:
+  issues:
+    types: [unlabeled]
+
+jobs:
+  track:
+    uses: automation-workflows/contributor-automation/.github/workflows/reusable-triage-removal.yml@main
+    with:
+      issue_number: ${{ github.event.issue.number }}
+      repo_name: ${{ github.repository }}
+      label_removed: ${{ github.event.label.name }}
+    secrets: inherit

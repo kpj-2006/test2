@@ -1,0 +1,16 @@
+name: Check Promotion to Sentinel
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  promote:
+    # Run after PR is merged to check if promotion is needed
+    if: github.event.pull_request.merged == true
+    uses: automation-workflows/contributor-automation/.github/workflows/reusable-promote.yml@main
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+      repo_name: ${{ github.repository }}
+      pr_author: ${{ github.event.pull_request.user.login }}
+    secrets: inherit

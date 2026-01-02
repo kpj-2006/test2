@@ -1,0 +1,15 @@
+name: Manual Issue Assignment Tracking
+
+on:
+  issues:
+    types: [assigned]
+
+jobs:
+  track:
+    uses: automation-workflows/contributor-automation/.github/workflows/reusable-manual-assign.yml@main
+    with:
+      issue_number: ${{ github.event.issue.number }}
+      repo_name: ${{ github.repository }}
+      assignee: ${{ github.event.assignee.login }}
+      assigned_at: ${{ github.event.issue.updated_at }}
+    secrets: inherit

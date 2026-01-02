@@ -1,0 +1,15 @@
+name: Route Issue Assignment
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  route:
+    # Route to Apprentices or assign to Sentinel
+    uses: automation-workflows/contributor-automation/.github/workflows/reusable-issue-assign.yml@main
+    with:
+      issue_number: ${{ github.event.issue.number }}
+      repo_name: ${{ github.repository }}
+      issue_labels: ${{ toJson(github.event.issue.labels.*.name) }}
+    secrets: inherit

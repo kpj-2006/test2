@@ -1,0 +1,14 @@
+name: Sentinel Health Check
+
+on:
+  schedule:
+    # Run every 5 days at 00:00 UTC
+    - cron: '0 0 */5 * *'
+  workflow_dispatch: # Allow manual trigger for testing
+
+jobs:
+  health-check:
+    uses: automation-workflows/contributor-automation/.github/workflows/reusable-health-check.yml@main
+    with:
+      repo_name: ${{ github.repository }}
+    secrets: inherit

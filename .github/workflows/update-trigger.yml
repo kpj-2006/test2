@@ -1,0 +1,18 @@
+name: Update Contributor Registry
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  update:
+    # Run on any merged PR (not just first-time contributors)
+    if: github.event.pull_request.merged == true
+    uses: automation-workflows/contributor-automation/.github/workflows/reusable-update-registry.yml@main
+    with:
+      pr_number: ${{ github.event.pull_request.number }}
+      repo_name: ${{ github.repository }}
+      pr_author: ${{ github.event.pull_request.user.login }}
+      lines_changed: ${{ github.event.pull_request.additions + github.event.pull_request.deletions }}
+      pr_labels: ${{ toJson(github.event.pull_request.labels.*.name) }}
+    secrets: inherit

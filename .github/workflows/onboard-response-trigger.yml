@@ -1,0 +1,21 @@
+name: Handle Onboarding Response
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  pull-requests: read
+
+jobs:
+  process:
+    # Only process PR comments
+    if: github.event.issue.pull_request
+    uses: automation-workflows/contributor-automation/.github/workflows/reusable-onboard-response.yml@main
+    with:
+      issue_number: ${{ github.event.issue.number }}
+      repo_name: ${{ github.repository }}
+      comment_body: ${{ github.event.comment.body }}
+      commenter: ${{ github.event.comment.user.login }}
+    secrets: inherit

@@ -13,6 +13,6 @@ jobs:
       pr_number: ${{ github.event.pull_request.number }}
       repo_name: ${{ github.repository }}
       pr_author: ${{ github.event.pull_request.user.login }}
-      lines_changed: ${{ github.event.pull_request.additions }} + ${{ github.event.pull_request.deletions }}
+      lines_changed: ${{ fromJSON(format('{0}', github.event.pull_request.additions + github.event.pull_request.deletions)) }}
       pr_labels: ${{ toJson(github.event.pull_request.labels.*.name) }}
     secrets: inherit

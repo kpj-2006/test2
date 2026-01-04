@@ -12,7 +12,7 @@ jobs:
   process:
     # Only process PR comments
     if: github.event.issue.pull_request
-    uses: automation-workflows/contributor-automation/.github/workflows/reusable-onboard-response.yml@main
+    uses: automation-workflows/contributor-automation/.github/workflows/reusable-first-onboard-response.yml@main
     with:
       issue_number: ${{ github.event.issue.number }}
       repo_name: ${{ github.repository }}

@@ -11,12 +11,60 @@ permissions:
 jobs:
   ask-for-info:
     if: |
+      github.repository_owner == 'StabilityNexus' &&
+      github.event.pull_request.merged &&
       github.event.pull_request.merged == true &&
-      contains(github.event.pull_request.labels.*.name, 'first-time-contributor')
+      contains(github.event.pull_request.labels.*.name, 'first-time-contributor') &&
+      github.actor != 'dependabot[bot]' &&
+      github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     
     steps:
+      # Checkout automation scripts to check if user already exists
+      - name: Checkout automation scripts
+        uses: actions/checkout@v4
+        with:
+          repository: automation-workflows/contributor-automation
+          path: automation
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r automation/requirements.txt
+      
+      # Check if contributor already exists in Gist BEFORE posting comment
+      - name: Check if already onboarded
+        id: check_existing
+        env:
+          GIST_PAT: ${{ secrets.GIST_PAT }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          cd automation
+          python scripts/contributor_checker.py \
+            --action check_exists \
+            --pr-author "$PR_AUTHOR" \
+            --gist-pat "$GIST_PAT" \
+            --output-file ../check_result.json
+          
+          if [ -f ../check_result.json ]; then
+            EXISTS=$(jq -r '.exists' ../check_result.json)
+            echo "exists=$EXISTS" >> $GITHUB_OUTPUT
+            if [ "$EXISTS" = "true" ]; then
+              echo "✓ Contributor already onboarded. Skipping ask-for-info comment."
+            fi
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      
+      # Only post comment if user is NOT already onboarded
       - name: Comment asking for Discord ID and wallet
+        if: steps.check_existing.outputs.exists == 'false'
         uses: actions/github-script@v7
         with:
           script: |
@@ -39,6 +87,8 @@ jobs:
             ⚠️ **Important:**
             - Only the PR author's comment will be accepted
             - You must be in the Discord server to be assigned a role
+            
+            **Discord Server:** https://discord.gg/fuuWX4AbJt
             
             ⏰ **You have 7 days to respond.**`;
             await github.rest.issues.createComment({

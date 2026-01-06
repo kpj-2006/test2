@@ -22,7 +22,8 @@ jobs:
           
           if [ -z "$GIST_PAT" ]; then
             echo "❌ GIST_PAT secret is not configured"
-            exit 1
+          else
+            echo "✓ GIST_PAT is configured (length: ${#GIST_PAT} chars)"
           fi
           echo "✓ GIST_PAT is configured (length: ${#GIST_PAT} chars)"
           

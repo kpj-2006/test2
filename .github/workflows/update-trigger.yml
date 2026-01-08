@@ -23,10 +23,10 @@ jobs:
           
           if [ -z "$GIST_PAT" ]; then
             echo "❌ GIST_PAT secret is not configured"
+            exit 1
           else
             echo "✓ GIST_PAT is configured (length: ${#GIST_PAT} chars)"
           fi
-          echo "✓ GIST_PAT is configured (length: ${#GIST_PAT} chars)"
           
           if [ -z "$DISCORD_BOT_TOKEN" ]; then
             echo "⚠️ DISCORD_BOT_TOKEN is not configured (optional for registry update)"
@@ -52,10 +52,10 @@ jobs:
     needs: calculate
     uses: automation-workflows/contributor-automation/.github/workflows/reusable-update-registry.yml@main
     with:
-      pr_number: ${{ github.event.pull_request.number }}
+      pr_number: ${{ github.event.pull_request.number || 0 }}
       repo_name: ${{ github.repository }}
-      pr_author: ${{ github.event.pull_request.user.login }}
-      lines_changed: ${{ fromJson(needs.calculate.outputs.lines_changed) }}
-      pr_labels: ${{ toJson(github.event.pull_request.labels.*.name) }}
+      pr_author: ${{ github.event.pull_request.user.login || github.actor }}
+      lines_changed: ${{ needs.calculate.outputs.lines_changed }}
+      pr_labels: ${{ toJson(github.event.pull_request.labels.*.name || '[]') }}
     secrets:
       GIST_PAT: ${{ secrets.GIST_PAT }}
